@@ -4,16 +4,19 @@
   "description": "A Vue.js project",
   "author": "kennethteh90 <kennethteh90@gmail.com>",
   "private": true,
+  "homepage": "https://github.com/kennethteh90/food-delivery",
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "npm run dev",
     "test": "npm run unit",
     "lint": "eslint --ext .js,.vue src test/unit",
-    "build": "node build/build.js"
+    "build": "node build/build.js",
+    "deploy": "node ./node_modules/vue-gh-pages/index.js"
   },
   "dependencies": {
     "eslint": "^4.18.0",
-    "vue": "^2.5.2"
+    "vue": "^2.5.2",
+    "vue-gh-pages": "^1.8.8"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

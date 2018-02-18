@@ -50,7 +50,7 @@
 
                   <h2>How was the food?</h2>
 
-                  <div v-for="(order_item, index) in order.order_items" v-bind:key="order_item.name">
+                  <div v-for="(order_item, index) in order.order_items">
 
                     <h3> {{ order_item.name }} </h3>
 
