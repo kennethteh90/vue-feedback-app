@@ -18,7 +18,7 @@
         </thead>
 
         <tbody>
-          <tr v-for="order in orders">
+          <tr v-for="order in orders" v-bind:key="order.order_id">
             <td> {{ order.order_id }} </td>
             <td v-if="order.feedback_submitted"> Thanks for sharing your feedback! </td>
             <td v-else-if="!order.feedback_submitted">
@@ -50,7 +50,7 @@
 
                   <h2>How was the food?</h2>
 
-                  <div v-for="(order_item, index) in order.order_items">
+                  <div v-for="(order_item, index) in order.order_items" v-bind:key="order_item.name">
 
                     <h3> {{ order_item.name }} </h3>
 
@@ -88,7 +88,6 @@
 
                 </form>
 
-
               </slot>
             </div>
 
@@ -111,30 +110,30 @@
 <script>
   export default {
 
-    data() {
+    data () {
       return {
         orders: {},
         selectedOrder: null,
         formData: {
           feedbacks: []
         },
-        baseUrl: 'http://localhost:3000/orders/' // for localhost
-        // baseUrl: 'https://food-delivery-api.herokuapp.com/orders' // for heroku
+        // baseUrl: 'http://localhost:3000/orders/' // for localhost
+        baseUrl: 'https://food-delivery-api.herokuapp.com/orders' // for heroku
       }
     },
 
     computed: {
       order: function () {
         return this.orders.find(item => item.id === this.selectedOrder)
-      },
+      }
     },
 
     methods: {
 
       // Fetch order list from API
-      fetchOrders() {
-        fetch(this.baseUrl)
-          .then(function(response) {
+      fetchOrders () {
+        fetch (this.baseUrl)
+          .then(function (response) {
             if (!response.ok) {
               throw Error(response.statusText)
             }
@@ -151,7 +150,7 @@
       },
 
       // Select order to provide feedback, launch modal
-      handleClick: function(order_id) {
+      handleClick: function (order_id) {
         this.selectedOrder = order_id
         this.formData = {
           feedbacks: [
