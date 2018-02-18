@@ -8,6 +8,8 @@
     </div>
 
     <div>
+
+      <!-- Check if there are any orders -->
       <h3 v-if="Object.keys(orders).length === 0">Nothing here yet! Head on over to our ordering page to get some awesome food!</h3>
       <table v-else-if="orders.length">
         <thead>
@@ -27,6 +29,7 @@
       </table>
     </div>
 
+    <!-- Show modal if button is clicked, order is selected -->
     <transition v-if="selectedOrder" name="modal">
       <div class="modal-mask">
         <div class="modal-wrapper">
@@ -51,10 +54,11 @@
 
                     <h3> {{ order_item.name }} </h3>
 
-                    <input type="radio" id="good" value=1 v-model="formData.feedbacks[index+1].rating">
-                    <label for="good">Good</label>
-                    <input type="radio" id="bad" value=-1 v-model="formData.feedbacks[index+1].rating">
-                    <label for="bad">Bad</label>
+                      <input type="radio" :id="'good'+index" class="good" value=1 v-model="formData.feedbacks[index+1].rating">
+                      <label :for="'good'+index"></label>
+
+                      <input type="radio" :id="'bad'+index" class="bad" value=-1 v-model="formData.feedbacks[index+1].rating">
+                      <label :for="'bad'+index"></label>
 
                     <br>
 
@@ -67,10 +71,10 @@
                   <h2>What about the delivery?</h2>
                   <h3> Courier </h3>
 
-                  <input type="radio" id="good" value=1 v-model="formData.feedbacks[0].rating">
-                  <label for="good">Good</label>
-                  <input type="radio" id="bad" value=-1 v-model="formData.feedbacks[0].rating">
-                  <label for="bad">Bad</label>
+                  <input type="radio" id="good" class="good" value=1 v-model="formData.feedbacks[0].rating">
+                  <label for="good"></label>
+                  <input type="radio" id="bad" class="bad" value=-1 v-model="formData.feedbacks[0].rating">
+                  <label for="bad"></label>
 
                   <br>
 
@@ -78,7 +82,7 @@
                   <br>
                   <textarea v-model="formData.feedbacks[0].comment" placeholder="Leave your comments here!"></textarea>
 
-                  <br>
+                  <br> <br>
 
                   <button type="submit">Submit</button>
 
@@ -114,8 +118,8 @@
         formData: {
           feedbacks: []
         },
-        baseUrl: 'http://localhost:3000/orders/'
-        // baseUrl: 'https://food-delivery-api.herokuapp.com/orders'
+        baseUrl: 'http://localhost:3000/orders/' // for localhost
+        // baseUrl: 'https://food-delivery-api.herokuapp.com/orders' // for heroku
       }
     },
 
@@ -127,6 +131,7 @@
 
     methods: {
 
+      // Fetch order list from API
       fetchOrders() {
         fetch(this.baseUrl)
           .then(function(response) {
@@ -140,8 +145,12 @@
             console.log(res.orders)
             this.orders = res.orders
           })
+          .catch(error => {
+            console.log(error)
+          })
       },
 
+      // Select order to provide feedback, launch modal
       handleClick: function(order_id) {
         this.selectedOrder = order_id
         this.formData = {
@@ -156,20 +165,18 @@
         }
         console.log("clicked")
         console.log(this.selectedOrder)
-          for (let order_item of this.order.order_items) {
-            this.formData.feedbacks.push({
-              ratable_id: "",
-              ratable_type: "",
-              rating: 0,
-              comment: ""
-            })
-          }
-        },
+        for (let order_item of this.order.order_items) {
+          this.formData.feedbacks.push({
+            ratable_id: "",
+            ratable_type: "",
+            rating: 0,
+            comment: ""
+          })
+        }
+      },
 
+      // Submit form
       handleSubmit: function() {
-
-        console.log("submitted")
-
         // Workaround: starts from 1 to avoid the DeliveryItem
         for (let i = 1; i <= this.order.order_items.length; i++) {
           this.formData.feedbacks[i].ratable_id = this.order.order_items[i-1].order_item_id
@@ -181,16 +188,17 @@
 
         var url = this.baseUrl + this.order.order_id + '/feedbacks'
 
-        fetch(url, {
+        // Post to API
+        fetch(url,
+          {
             method: 'POST',
             body: JSON.stringify(this.formData),
             headers: new Headers({
               'Content-Type': 'application/json'
-            })
           })
-          .then(res => res.json())
-          .catch(error => console.error('Error:', error))
-          .then(response => console.log('Success:', response))
+        })
+        .catch(error => console.error('Error:', error))
+        .then(response => console.log('Success:', response))
 
         this.selectedOrder = null
         alert("Thanks for your feedback!")
@@ -199,15 +207,18 @@
     },
 
     mounted() {
-        // call this.apiCall here
-        this.fetchOrders()
+      this.fetchOrders()
     },
 
   }
 
+
 </script>
 
 <style>
+
+  @import url(//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css);
+
   #app {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -292,7 +303,7 @@
   }
 
   .modal-close-button {
-    float: right;
+    /*float: right;*/
     background-color: grey;
   }
 
@@ -319,5 +330,52 @@
     transform: scale(1.1);
   }
 
+  /*https://gist.githubusercontent.com/pom-pom/10255961/raw/1ec68600b358e7719a9b1295756d99cfa53365d0/font-awesome-form-elements.css*/
+  /*Custom Radio Buttons and Checkboxes using Font Awesome*/
+
+  .radio {
+    display: block;
+  }
+
+  input[type=radio] {
+    display: none;
+  }
+
+  input[type='radio'] + label:before {
+    display: inline-block;
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    font-size: 2em;
+    margin-bottom: .5em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    padding-right: 8px;
+    width: 23px;
+  }
+  input[type='radio'].good + label:before {
+    content: "\f164";
+    color: #D6D5D5;
+  }
+
+  input[type='radio']:checked.good + label:before {
+    content: "\f164";
+    color: orange;
+  }
+
+  input[type='radio'].bad + label:before {
+    content: "\f165";
+    color: #D6D5D5;
+  }
+
+  input[type='radio']:checked.bad + label:before {
+    content: "\f165";
+    color: orange;
+  }
+
+  .radio label  {
+    padding-left: 0;
+  }
 
 </style>
