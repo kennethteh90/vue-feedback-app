@@ -20,35 +20,78 @@
             <td> {{ order.order_id }} </td>
             <td v-if="order.feedback_submitted"> Thanks for sharing your feedback! </td>
             <td v-else-if="!order.feedback_submitted">
-              <button v-on:click="handleClick(order.order_id)" id="show-modal" @click="showModal = true">Submit Feedback</button> 
+              <button v-on:click="handleClick(order.order_id)" id="show-modal">Submit Feedback</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <transition v-if="showModal" name="modal">
+    <transition v-if="selectedOrder" name="modal">
       <div class="modal-mask">
         <div class="modal-wrapper">
           <div class="modal-container">
 
             <div class="modal-header">
               <slot name="header">
-                default header
+                <h1>Feedback for Order {{selectedOrder}}</h1>
               </slot>
             </div>
 
+            <hr>
+
             <div class="modal-body">
               <slot name="body">
-                default body
+
+                <form @submit.prevent="handleSubmit()">
+
+                  <h2>How was the food?</h2>
+
+                  <div v-for="(order_item, index) in order.order_items">
+
+                    <h3> {{ order_item.name }} </h3>
+
+                    <input type="radio" id="good" value=1 v-model="formData.feedbacks[index+1].rating">
+                    <label for="good">Good</label>
+                    <input type="radio" id="bad" value=-1 v-model="formData.feedbacks[index+1].rating">
+                    <label for="bad">Bad</label>
+
+                    <br>
+
+                    <span>Comment:</span>
+                    <br>
+                    <textarea v-model="formData.feedbacks[index+1].comment" placeholder="Leave your comments here!"></textarea>
+
+                  </div>
+
+                  <h2>What about the delivery?</h2>
+                  <h3> Courier </h3>
+
+                  <input type="radio" id="good" value=1 v-model="formData.feedbacks[0].rating">
+                  <label for="good">Good</label>
+                  <input type="radio" id="bad" value=-1 v-model="formData.feedbacks[0].rating">
+                  <label for="bad">Bad</label>
+
+                  <br>
+
+                  <span>Comment:</span>
+                  <br>
+                  <textarea v-model="formData.feedbacks[0].comment" placeholder="Leave your comments here!"></textarea>
+
+                  <br>
+
+                  <button type="submit">Submit</button>
+
+                </form>
+
+
               </slot>
             </div>
 
             <div class="modal-footer">
               <slot name="footer">
-                default footer
-                <button class="modal-default-button" @click="showModal=false">
-                  OK
+                <button class="modal-close-button" @click="selectedOrder=null">
+                  Close
                 </button>
               </slot>
             </div>
@@ -68,10 +111,18 @@
       return {
         orders: {},
         selectedOrder: null,
-        showModal: false,
+        formData: {
+          feedbacks: []
+        },
         baseUrl: 'http://localhost:3000/orders/'
         // baseUrl: 'https://food-delivery-api.herokuapp.com/orders'
       }
+    },
+
+    computed: {
+      order: function () {
+        return this.orders.find(item => item.id === this.selectedOrder)
+      },
     },
 
     methods: {
@@ -93,25 +144,42 @@
 
       handleClick: function(order_id) {
         this.selectedOrder = order_id
+        this.formData = {
+          feedbacks: [
+            {
+              ratable_id: "",
+              ratable_type: "",
+              rating: 0,
+              comment: ""
+            }
+          ]
+        }
         console.log("clicked")
         console.log(this.selectedOrder)
-      },
+          for (let order_item of this.order.order_items) {
+            this.formData.feedbacks.push({
+              ratable_id: "",
+              ratable_type: "",
+              rating: 0,
+              comment: ""
+            })
+          }
+        },
 
       handleSubmit: function() {
 
         console.log("submitted")
 
-        // loop to get data from handleSubmit(itemRatableId, orderRatableId)
-        // Workaround: starts from 1 to avoid the DeliveryItem, but this array only contains itemRatableId for OrderItems, so use i-1
-        for (i = 1; i <= this.itemRatableId.length; i++) {
-          this.formData.feedbacks[i].ratable_id = this.itemRatableId[i - 1]
+        // Workaround: starts from 1 to avoid the DeliveryItem
+        for (let i = 1; i <= this.order.order_items.length; i++) {
+          this.formData.feedbacks[i].ratable_id = this.order.order_items[i-1].order_item_id
           this.formData.feedbacks[i].ratable_type = "OrderItem"
         }
 
-        this.formData.feedbacks[0].ratable_id = this.orderRatableId
+        this.formData.feedbacks[0].ratable_id = this.order.order_id
         this.formData.feedbacks[0].ratable_type = "DeliveryOrder"
 
-        var url = this.baseUrl + this.orderRatableId + '/feedbacks'
+        var url = this.baseUrl + this.order.order_id + '/feedbacks'
 
         fetch(url, {
             method: 'POST',
@@ -126,7 +194,7 @@
 
         this.selectedOrder = null
         alert("Thanks for your feedback!")
-        location.reload()
+        this.fetchOrders()
       }
     },
 
@@ -200,6 +268,7 @@
   .modal-container {
     height: 80%;
     width: 80%;
+    overflow-y: auto;
     margin: 0px auto;
     padding: 20px 30px;
     background-color: #fff;
@@ -220,6 +289,11 @@
 
   .modal-default-button {
     float: right;
+  }
+
+  .modal-close-button {
+    float: right;
+    background-color: grey;
   }
 
   /*
