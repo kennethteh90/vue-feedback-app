@@ -118,7 +118,7 @@
           feedbacks: []
         },
         // baseUrl: 'http://localhost:3000/orders/' // for localhost
-        baseUrl: 'https://food-delivery-api.herokuapp.com/orders' // for heroku
+        baseUrl: 'https://food-delivery-api.herokuapp.com/orders/' // for heroku
       }
     },
 
