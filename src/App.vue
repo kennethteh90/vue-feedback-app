@@ -197,11 +197,12 @@
           })
         })
         .catch(error => console.error('Error:', error))
-        .then(response => console.log('Success:', response))
-
-        this.selectedOrder = null
-        alert("Thanks for your feedback!")
-        this.fetchOrders()
+        .then(response => {
+          console.log('Success:', response)
+          this.selectedOrder = null
+          alert("Thanks for your feedback!")
+          this.fetchOrders()
+        }
       }
     },
 
