@@ -1,3 +1,5 @@
+> **Maintained lightly** for historical Medium/blog links. Active portfolio: [kennethteh90.github.io](https://github.com/kennethteh90/kennethteh90.github.io).
+
 # FeedbackApp - React Native
 
 A cross-platform feedback application for food delivery services, built with React Native for Android, iOS, and Web.
